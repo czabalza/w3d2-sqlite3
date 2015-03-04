@@ -43,7 +43,7 @@ class QuestionFollow
     @user_id = options['user_id']
   end
 
-  def followers_for_question_id(question_id)
+  def self.followers_for_question_id(question_id)
     results = QuestionsDatabase.instance.execute(<<-SQL, question_id)
       SELECT
         *
@@ -56,6 +56,20 @@ class QuestionFollow
       WHERE
         questions_follows.question_id = ?
     SQL
-    results.map{ |result| Users.new(result) }
+    results.map{ |result| User.new(result) }
+  end
+
+  def self.followed_questions_for_user_id(user_id)
+    results = QuestionsDatabase.instance.execute(<<-SQL, user_id)
+      SELECT
+        *
+      FROM
+        questions
+      JOIN
+        questions_follows ON questions_follows.question_id = questions.id
+      WHERE
+        questions_follows.user_id = ?
+    SQL
+    results.map { |result| Question.new(result) }
   end
 end
