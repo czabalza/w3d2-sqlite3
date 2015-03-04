@@ -46,4 +46,26 @@ class User
   def followed_questions
     QuestionFollow.followed_questions_for_user_id(id)
   end
+
+  def save
+    if id == nil
+      users = QuestionsDatabase.instance.execute(<<-SQL, fname, lname)
+        INSERT INTO
+          users
+          (fname, lname)
+        VALUES
+          (?, ?)
+      SQL
+    else
+      users = QuestionsDatabase.instance.execute(<<-SQL, fname, lname, id)
+        UPDATE
+          users
+        SET
+          fname = ?,
+          lname = ?
+        WHERE
+          id = ?
+        SQL
+    end
+  end
 end
